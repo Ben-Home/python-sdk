@@ -190,8 +190,11 @@ class OAuthContext:
             and self.current_tokens.access_token
             # None means the authorization server declared no expiry. Compare against that
             # explicitly: a falsy test would also treat an expiry of 0.0 (the epoch, long
-            # expired) as "no expiry" and keep presenting a dead token.
-            and (self.token_expiry_time is None or time.time() <= self.token_expiry_time)
+            # expired) as "no expiry" and keep presenting a dead token. The comparison is
+            # exclusive because the expiry instant is the first moment the token is no
+            # longer usable: RFC 7519 section 4.1.4 requires the current time to be before
+            # the exp claim, and the server rejects a bearer token at that instant.
+            and (self.token_expiry_time is None or time.time() < self.token_expiry_time)
         )
 
     def can_refresh_token(self) -> bool:
