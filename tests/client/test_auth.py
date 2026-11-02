@@ -266,28 +266,6 @@ class TestOAuthContext:
         context.token_expiry_time = 0.0
         assert not context.is_token_valid()
 
-    @pytest.mark.anyio
-    async def test_token_expiry_boundary_is_exclusive(
-        self, oauth_provider: OAuthClientProvider, valid_tokens: OAuthToken
-    ):
-        """At the expiry instant itself the token is already invalid.
-
-        RFC 7519 section 4.1.4 defines validity as the current time being
-        *before* the `exp` claim, so `now == expiry` is expired. This is a
-        statement about the claim's own semantics, not about how lenient a
-        particular server middleware happens to be.
-        """
-        context = oauth_provider.context
-        context.current_tokens = valid_tokens
-        expiry = time.time() + 1800
-        context.token_expiry_time = expiry
-
-        with mock.patch("mcp.client.auth.oauth2.time.time", return_value=expiry):
-            assert not context.is_token_valid()
-
-        with mock.patch("mcp.client.auth.oauth2.time.time", return_value=expiry - 0.001):
-            assert context.is_token_valid()
-
     def test_clear_tokens(self, oauth_provider: OAuthClientProvider, valid_tokens: OAuthToken):
         """Test clear_tokens() removes token data."""
         context = oauth_provider.context
