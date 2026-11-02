@@ -272,9 +272,10 @@ class TestOAuthContext:
     ):
         """At the expiry instant itself the token is already invalid.
 
-        RFC 7519 section 4.1.4 requires the current time to be before the `exp`
-        claim, so `now == expiry` must be treated as expired. An inclusive
-        comparison presents a dead token for up to a second.
+        RFC 7519 section 4.1.4 defines validity as the current time being
+        *before* the `exp` claim, so `now == expiry` is expired. This is a
+        statement about the claim's own semantics, not about how lenient a
+        particular server middleware happens to be.
         """
         context = oauth_provider.context
         context.current_tokens = valid_tokens

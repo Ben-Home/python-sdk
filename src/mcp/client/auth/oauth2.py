@@ -191,9 +191,8 @@ class OAuthContext:
             # None means the authorization server declared no expiry. Compare against that
             # explicitly: a falsy test would also treat an expiry of 0.0 (the epoch, long
             # expired) as "no expiry" and keep presenting a dead token. The comparison is
-            # exclusive because the expiry instant is the first moment the token is no
-            # longer usable: RFC 7519 section 4.1.4 requires the current time to be before
-            # the exp claim, and the server rejects a bearer token at that instant.
+            # exclusive because RFC 7519 section 4.1.4 defines validity as the current time
+            # being *before* the exp claim: the expiry instant itself is already expired.
             and (self.token_expiry_time is None or time.time() < self.token_expiry_time)
         )
 
